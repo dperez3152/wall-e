@@ -2,13 +2,14 @@ from math import sin, cos
 from lx16a import *
 import time
 
-LX16A.initialize("/dev/cu.usbserial-1410", 0.1)
+LX16A.initialize("/dev/ttyUSB0", 0.1)
 
 
 def homing_init(self, motors):
+    pass
     # query motor positions (report error if u cannot get a reply  (comm error))
-    try:
-        for motor in motors:
+    #try:
+    #    for motor in motors:
             
         # if not response >> comms error
     
