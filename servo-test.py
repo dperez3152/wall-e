@@ -17,7 +17,7 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIntValidator
 import serial.tools.list_ports
 import serial.serialutil
-from pylx16a.lx16a import *
+from lx16a import *
 import platform
 import sys
 

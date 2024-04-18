@@ -1,5 +1,5 @@
 from math import sin, cos
-from pylx16a.lx16a import *
+from lx16a import *
 import time
 
 LX16A.initialize("/dev/cu.usbserial-1410", 0.1)
