@@ -3,6 +3,7 @@ from lx16a import *
 import time
 
 LX16A.initialize("/dev/ttyUSB0", 0.1)
+t = 0
 
 
 def homing_init(motors):
