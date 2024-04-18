@@ -5,7 +5,7 @@ import time
 LX16A.initialize("/dev/ttyUSB0", 0.1)
 
 
-def homing_init(self, motors):
+def homing_init(motors):
     pass
     # query motor positions (report error if u cannot get a reply  (comm error))
     #try:
@@ -18,7 +18,7 @@ def homing_init(self, motors):
     # CHECK THAT ROBOT REAACHES HOME STATE 
         # error if motors don't reach 
 
-def init_servos(self):
+def init_servos():
     try:
         servo_hip = LX16A(1)
         servo_upper_knee = LX16A(6)
@@ -33,13 +33,13 @@ def init_servos(self):
     return servo_hip, servo_upper_knee, servo_knee
 
 
-def move_forward(self, servo_hip, servo_upper_knee, servo_knee):
+def move_forward(servo_hip, servo_upper_knee, servo_knee):
     servo_hip.move(sin(t) * 60 + 60)
     servo_upper_knee.move(cos(t) * 60 + 60)
     servo_knee.move(sin(t) * 60 + 60)
 
 
-def move_backwards(self, servo_hip, servo_upper_knee, servo_knee):
+def move_backwards(servo_hip, servo_upper_knee, servo_knee):
     servo_hip.move(cos(t) * 60 + 60)
     servo_upper_knee.move(sin(t) * 60 + 60)
     servo_knee.move(cos(t) * 60 + 60)
