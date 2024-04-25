@@ -14,9 +14,9 @@ LX16A.initialize("/dev/ttyUSB0", 1)
 # servo 8: left hip     120
 
 try:
-    servo1 = LX16A(4)
-    servo2 = LX16A(5)
-    servo3 = LX16A(8)
+    servo1 = LX16A(1)
+    servo2 = LX16A(4)
+    servo3 = LX16A(6)
     servo1.set_angle_limits(0, 360)
     servo2.set_angle_limits(0, 360)
     servo3.set_angle_limits(0, 360)
@@ -27,9 +27,9 @@ except ServoTimeoutError as e:
 
 t = 0
 while t <0.11:
-    #print(servo1.get_physical_angle(), servo1.get_angle_offset(True))
+    print(servo2.get_physical_angle(), servo1.get_angle_offset(True))
     print("\nupper knee:")
-    print(servo2.get_physical_angle(), servo2.get_angle_offset(True))
+    print(servo1.get_physical_angle(), servo2.get_angle_offset(True))
     print("knee:")
     print(servo3.get_physical_angle(), servo3.get_angle_offset(True))
     #servo2.move(10)
