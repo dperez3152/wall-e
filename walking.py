@@ -119,15 +119,17 @@ class Walle:
     # TODO: def move_to_pos(position: Enum["stand", "crouch"]): figure out how to do this
     def move_to_pos(self, desired_position):
         # move wall-e to his home "stand" position or rest "crouch" position
+
+        # table of angles of different position possibilites
         servos =        ['l_hip', 'r_hip', 'l_leg', 'r_leg', 'l_knee', 'r_knee']
         stand_angles =  [105,      150,     175,    5,       120,       120]
         crouch_angles = [110,      145,     150,    30,      120,       120]
 
-        stand = dict(zip(servos, stand_angles))
-        crouch = dict(zip(servos, crouch_angles))
+        # decide which angles to use
+        desired_angles = stand_angles if desired_position == "stand" else crouch_angles
+        pos = dict(zip(servos, desired_angles))
 
-        pos = stand if desired_position == "stand" else crouch
-
+        # move servos & ensure they all reach their target angles
         for servo, angle in pos.items():
             self.servos[servo].move(angle)
                 
