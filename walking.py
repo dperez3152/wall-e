@@ -6,6 +6,7 @@ from enum import Enum
 
 LX16A.initialize("/dev/ttyUSB0", 1)
 
+# VISUALIZATION OF MOTOR CONFIGURATION: 
 # head: 1 -> 6
 # left leg: 8 -> 4 -> 5 
 # right leg: 7 -> 3 -> 2
@@ -35,7 +36,7 @@ class Walle:
         
         self.servos = self.create_servo_dict()
 
-        #self.set_servo_angle_limits()
+        #TODO self.set_servo_angle_limits() why doesn't this work dawg
 
         print("initialized servos..\n")
 
@@ -54,7 +55,7 @@ class Walle:
 
     
     def set_servo_angle_limits(self) -> None:
-        # set all servo angle limits to 0-240 (for now)
+        # set all servo angle limits to 0-240 (for now, TODO refine maybe)
         # this is a physical limitation of their "servo mode"
         for servo in self.servos.values():
             servo.set_angle_limits(0, 240)
@@ -89,18 +90,17 @@ class Walle:
             quit()
 
     
-    def flash_sequence(self, servos_to_flash: dict):
+    def flash_thrice(self, servos_to_flash: dict):
         # flash all LEDs in servos 3 times
+        flash_duration = 0.3
         for t in range(3):
             for servo in servos_to_flash.values():
                 servo.led_power_on()
-            
-            time.sleep(0.3)
+            time.sleep(flash_duration)
 
             for servo in servos_to_flash.values():
                 servo.led_power_off()
-
-            time.sleep(0.3)
+            time.sleep(flash_duration)
 
     
     def heartbeat(self):
@@ -115,8 +115,10 @@ class Walle:
             time.sleep(0.3)
 
 
-    #def move_to_pos(position: Enum["stand", "crouch"]): figure out how to do this
+    # TODO: def move_to_pos(position: Enum["stand", "crouch"]): figure out how to do this
     def move_to_pos(self, position):
+        # move wall-e to his home "stand" position or rest "crouch" position
+
         # servo 1: top head
         # servo 2: right shin   120
         # servo 3: right leg    180
@@ -146,40 +148,47 @@ class Walle:
             self.servos['l_knee'].move(120)
             self.servos['r_knee'].move(120)
 
-        # ENSURE TARGET POS REACHED
+        # TODO: ENSURE TARGET POS REACHED
 
     
     def boot(self):
+        # run upon starting wall-e up
         for servo in self.servos.values():
+            # ensure you can communicate with motors and that voltage is acceptable
             self.query_motor_position(servo)
-            # enable/disable motors? ensure connected to power
+            # TODO: enable/disable motors? ensure connected to power
             self.query_motor_voltage(servo)
         
-        self.flash_sequence({'head': self.head, 'neck': self.neck})
-        self.flash_sequence({'l_hip': self.lhip, 'l_leg': self.lleg, 'l_knee': self.lknee})
-        self.flash_sequence({'r_hip': self.rhip, 'r_leg': self.rleg, 'r_knee': self.rknee})
+        # flash sequence to signal that boot up was successful
+        self.flash_thrice({'head': self.head, 'neck': self.neck})
+        self.flash_thrice({'l_hip': self.lhip, 'l_leg': self.lleg, 'l_knee': self.lknee})
+        self.flash_thrice({'r_hip': self.rhip, 'r_leg': self.rleg, 'r_knee': self.rknee})
 
 
     def homing(self):
+        # ensure you can communicate with motors, then move wall-e to his home "stand" position
         for servo in self.servos.values():
             self.query_motor_position(servo)
             self.move_to_pos("stand")
 
 
     def health_check(self):
+        # ensure communication with motors, their temp, and their voltage are okay
         for servo in self.servos.values():
             self.query_motor_position(servo)
             self.query_motor_temp(servo)
             self.query_motor_voltage(servo)
 
+        # heartbeat flash to signal good health
         self.heartbeat()
 
 
     def shutdown(self):
+        # ensure communication with motors, then move wall-e to his rest "crouch" position
         for servo in self.servos.values():
             self.query_motor_position(servo)
             self.move_to_pos("crouch")
-            #disable motors?
+            # TODO: disable motors?
 
 
     def walk(self):
@@ -218,15 +227,15 @@ class Walle:
 
 
 def main():
-    print("HI WALL-E")
+    print("HI WALL-E!\n")
     walle = Walle()
     
-    #walle.boot()
-    #walle.health_check()
-    #walle.homing()
+    walle.boot()
+    walle.homing()
 
     walle.walk()
-    walle.homing()
+
+    walle.shutdown()
 
 
 if __name__ == "__main__":
