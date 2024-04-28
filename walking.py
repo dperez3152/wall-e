@@ -1,5 +1,5 @@
 
-from math import sin, cos
+from math import sin, cos, pi
 from lx16a import *
 import time
 from enum import Enum
@@ -27,8 +27,6 @@ class WalleD:
             # head
             self.head = LX16A(1)
             self.neck = LX16A(6)
-            print("hi from __init__\n")
-            print(self.head.get_physical_angle())
 
             # left leg
             self.lhip = LX16A(7)
@@ -46,9 +44,9 @@ class WalleD:
         
         self.servos = self.create_servo_dict()
         print("hi from init again")
+        #self.set_servo_angle_limits()
         print(self.servos['neck'].get_id())
         print(self.servos['neck'].get_physical_angle())
-        self.set_servo_angle_limits()
 
         print("initialized servos..\n")
 
@@ -62,9 +60,6 @@ class WalleD:
                         self.rhip, self.rleg, self.rknee]
         servos = dict(zip(servo_names, servo_values))
 
-        print("hi from create_servo_dict")
-        print(servos['neck'].get_id())
-        print(servos['neck'].get_physical_angle())
         return servos
 
     
@@ -74,10 +69,9 @@ class WalleD:
 
 
     def query_motor_position(self, servo) -> None:
-        print("hi from query_motor_pos")
-        print(servo.get_id())
         try:
-            print(servo.get_physical_angle())
+            servo.get_physical_angle()
+            print(servo.get_id(), servo.get_physical_angle())
         except ServoTimeoutError as e:
             print(f"[COMMS] Servo {e.id_} is not responding. Exiting...")
             quit()
@@ -115,6 +109,7 @@ class WalleD:
         t = 0
         
         while t < 3:
+            print("time", t)
             for servo in servos.values():
                 servo.led_power_on()
             
@@ -124,8 +119,9 @@ class WalleD:
                 servo.led_power_off()
 
             time.sleep(0.3)
-
             t+=1
+
+        print("DONE\n")
 
     
     def heartbeat(self):
@@ -147,40 +143,37 @@ class WalleD:
     #def move_to_pos(position: Enum["stand", "crouch"]): figure out how to do this
     def move_to_pos(self, position):
         if position == "stand":
-            self.servos['l_hip'].move(120)
-            self.servos['r_hip'].move(120)
+            self.servos['l_hip'].move(105)
+            self.servos['r_hip'].move(155)
             
-            self.servos['l_leg'].move(180)
-            self.servos['r_leg'].move(0)
+            self.servos['l_leg'].move(175)
+            self.servos['r_leg'].move(5)
             
             self.servos['l_knee'].move(120)
-            self.servos['r_knee'].move[120]
+            self.servos['r_knee'].move(120)
 
         elif position == "crouch":
-            self.servos['l_hip'].move(120)
-            self.servos['r_hip'].move(120)
+            self.servos['l_hip'].move(110)
+            self.servos['r_hip'].move(145)
             
-            self.servos['l_leg'].move(180)
-            self.servos['r_leg'].move(0)
+            self.servos['l_leg'].move(150)
+            self.servos['r_leg'].move(30)
             
             self.servos['l_knee'].move(120)
-            self.servos['r_knee'].move[120]
+            self.servos['r_knee'].move(120)
 
         # ENSURE TARGET POS REACHED
 
     
     def boot(self):
-        for key, servo in self.servos.items():
-            print(key)
-            print(servo.get_id())
-            print(self.servos['l_hip'].get_physical_angle())
-            #print(servo.get_physical_angle())
-            #self.query_motor_position(servo)
+        for servo in self.servos.values():
+            self.query_motor_position(servo)
             # enable/disable motors? ensure connected to power
-            #self.query_motor_voltage(servo)
-            #self.flash_sequence({'head': self.head, 'neck': self.neck})
-            #self.flash_sequence({'l_hip': self.lhip, 'l_leg': self.lleg, 'l_knee': self.lknee})
-            #self.flash_sequence({'r_hip': self.rhip, 'r_leg': self.rleg, 'r_knee': self.rknee})
+            self.query_motor_voltage(servo)
+        
+        self.flash_sequence({'head': self.head, 'neck': self.neck})
+        self.flash_sequence({'l_hip': self.lhip, 'l_leg': self.lleg, 'l_knee': self.lknee})
+        self.flash_sequence({'r_hip': self.rhip, 'r_leg': self.rleg, 'r_knee': self.rknee})
 
 
     def homing(self):
@@ -225,56 +218,33 @@ class WalleD:
             #disable motors?
 
 
-    def init_servos():
-        # NOT TO BE USED, lol
-        try:
-            # head
-            servo_head = LX16A(1)
-            servo_neck = LX16A(6)
-
-            servo_head.set_angle_limits(0, 240)
-            servo_neck.set_angle_limits(0, 240)
-
-            # left leg
-            servo_lhip = LX16A(7)
-            servo_lleg = LX16A(3)
-            servo_lknee = LX16A(2)
-
-            servo_lhip.set_angle_limits(0, 240)
-            servo_lleg.set_angle_limits(0, 240)
-            servo_lknee.set_angle_limits(0, 240)
-
-            # right leg
-            servo_rhip = LX16A(8)
-            servo_rleg = LX16A(4)
-            servo_rknee = LX16A(5)
-
-            servo_rhip.set_angle_limits(0, 240)
-            servo_rleg.set_angle_limits(0, 240)
-            servo_rknee.set_angle_limits(0, 240)
-
-        except ServoTimeoutError as e:
-            print(f"Servo {e.id_} is not responding. Exiting...")
-            quit()
-
-        print("initialized servos..\n")
-        return servo_hip, servo_upper_knee, servo_knee
-
-
-    def move_forward_right(servo_hip, servo_upper_knee, servo_knee):
+    def move_forward_right(self, servo_hip, servo_leg, servo_knee, servo_leg2, servo_hip2, servo_knee2):
         t = 0
         offsetHip = 240
         offsetUpperKnee = 15
         offsetKnee = 15
 
-        while True: 
+        # right hip: 155
+        # right leg: 30
+        # right knee: 120
 
-            if t%1 == 0 :
-                health_check()
+        #time.sleep(3)
+
+        while t<15: 
+
+            if t%2 == 0 :
+                self.health_check()
             
-            #servo_hip.move(sin(t) * 5 + 235)
-            servo_hip.move(235)
-            print(servo_hip.get_physical_angle())
+            servo_leg.move(4 * cos(2.5* t+pi/2) + 5)
+            servo_leg2.move(4 * cos((2.5* t+pi/2)) + 175)
+            
+            servo_hip.move(8 * sin((2.5*t+pi/2)) + 150)
+            servo_hip2.move(8 * sin((2.5*t+pi/2)) + 105)
+            
+            servo_knee.move(10 * cos((2.5*t+pi/2)) + 120)
+            servo_knee2.move(10 * cos(2.5*t+pi/2) + 120)
+
+            #self.servos['neck'].move(sin(t) * 60 + 60)
             #servo_upper_knee.move(0)
             #servo_knee.move(0)
             #servo_upper_knee.move(10)
@@ -282,25 +252,38 @@ class WalleD:
             #servo_knee.move(sin(t) * offsetKnee + 15)
 
             time.sleep(0.05)
-            t += 0.05
+            t += 0.1
 
-    def move_forward_left(servo_hip, servo_upper_knee, servo_knee):
+    def move_forward_left(self, servo_hip, servo_leg, servo_knee):
         t = 0
         offsetHip = 240
         offsetUpperKnee = 15
         offsetKnee = 15
 
-        while True: 
+        # left hip: 100
+        # left leg: 150
+        # left knee: 120
+
+        while t < 5: 
+            print("\nwalking now...")
+            servo_leg.move(sin(t) * 20 + 150)
             #servo_hip.move(sin(t) * 5 + 235)
-            servo_hip.move(237, relative=True)
-            servo_upper_knee.move(0)
-            servo_knee.move(0)
+            #servo_hip.move(237, relative=True)
+            #servo_upper_knee.move(0)
+            #servo_knee.move(0)
             #servo_upper_knee.move(10)
             #servo_upper_knee.move(sin(t) * offsetUpperKnee + offsetUpperKnee)
             #servo_knee.move(sin(t) * offsetKnee + 15)
 
             time.sleep(0.05)
-            t += 0.05
+            t += 0.1
+
+    def walking(self):
+        t=0
+        while t < 10:
+            self.move_forward_left(self.lhip, self.lleg, self.lknee)
+            self.move_forward_right(self.rhip, self.rleg, self.rknee)
+            t+1
 
 
     def move_backwards(servo_hip, servo_upper_knee, servo_knee):
@@ -311,7 +294,15 @@ class WalleD:
 def main():
     print("HI WALL-E")
     walle = WalleD()
-    walle.boot()
+    #walle.boot()
+    #walle.health_check()
+    #walle.homing()
+    #walle.move_forward_left(walle.lhip, walle.lleg, walle.lknee)
+    
+    walle.move_forward_right(walle.rhip, walle.rleg, walle.rknee, walle.lleg, walle.lhip, walle.lknee)
+    walle.homing()
+    #walle.walking()
+    print("out of boot!")
         #try:
         #    servo_hip, servo_upper_knee, servo_knee = init_servos()
         #    move_forward_right(servo_hip, servo_upper_knee, servo_knee)

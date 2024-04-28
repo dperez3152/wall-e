@@ -213,7 +213,7 @@ class LX16A:
                 self._id,
             )
 
-        LX16A._check_within_limits(angle, 0, 360, "angle", self._id)
+        LX16A._check_within_limits(angle, 0, 240, "angle", self._id)
         LX16A._check_within_limits(
             angle,
             LX16A._from_servo_range(self._angle_limits[0]),
@@ -300,8 +300,8 @@ class LX16A:
             LX16A._send_packet(packet)
 
     def set_angle_limits(self, lower_limit: float, upper_limit: float) -> None:
-        LX16A._check_within_limits(lower_limit, 0, 360, "lower limit", self._id)
-        LX16A._check_within_limits(upper_limit, 0, 360, "upper limit", self._id)
+        LX16A._check_within_limits(lower_limit, 0, 240, "lower limit", self._id)
+        LX16A._check_within_limits(upper_limit, 0, 240, "upper limit", self._id)
         if upper_limit < lower_limit:
             raise ServoArgumentError(
                 f"Servo {self._id}: lower limit (received {lower_limit}) must be less than upper limit (received {upper_limit})",
