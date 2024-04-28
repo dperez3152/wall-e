@@ -76,7 +76,7 @@ class Walle:
         temp_limit = 75
 
         if servo.get_temp() > temp_limit:
-            raise ServoError(f"[TEMP] Servo {e.id_} is overheating. Exiting...")
+            raise ServoError(f"[TEMP] Servo {servo.get_id()} is overheating. Exiting...")
             quit()
 
         
@@ -86,11 +86,12 @@ class Walle:
         upper_limit = 7500  # 7.5V
 
         if servo.get_vin() < lower_limit or servo.get_vin() > upper_limit:
-            raise ServoError(f"[VOLT] Servo {e.id_} voltage is outside safe limits. Exiting...")
+            raise ServoError(f"[VOLT] Servo {servo.get_id()} voltage is outside safe limits. Exiting...")
             quit()
 
     
     def flash_thrice(self, servos_to_flash: dict):
+        # TODO consider a better way to pass in the servos you want to flash
         # flash all LEDs in servos 3 times
         flash_duration = 0.3
         for t in range(3):
@@ -116,10 +117,29 @@ class Walle:
 
 
     # TODO: def move_to_pos(position: Enum["stand", "crouch"]): figure out how to do this
-    def move_to_pos(self, position):
+    def move_to_pos(self, desired_position):
         # move wall-e to his home "stand" position or rest "crouch" position
-        if position == "stand":
-            self.servos['l_hip'].move(105)
+        servos =        ['l_hip', 'r_hip', 'l_leg', 'r_leg', 'l_knee', 'r_knee']
+        stand_angles =  [105,      150,     175,    5,       120,       120]
+        crouch_angles = [110,      145,     150,    30,      120,       120]
+
+        stand = dict(zip(servos, stand_angles))
+        crouch = dict(zip(servos, crouch_angles))
+
+        pos = stand if desired_position == "stand" else crouch
+
+        for servo, angle in pos.items():
+            self.servos[servo].move(angle)
+                
+            if self.servos[servo].get_physical_angle() != angle:
+                raise ServoError(f"[MOVE] Servo {self.servos[servo].get_id()} 
+                                    did not reach target angle.")
+            
+
+        # not sure which version of move_to_pos is more user friendly
+        # this one is hardcoded, but straightforward
+        # one above is somewhat more general, but maybe not enough to be worth it
+        '''    self.servos['l_hip'].move(105)
             self.servos['r_hip'].move(150)
             
             self.servos['l_leg'].move(175)
@@ -136,7 +156,7 @@ class Walle:
             self.servos['r_leg'].move(30)
             
             self.servos['l_knee'].move(120)
-            self.servos['r_knee'].move(120)
+            self.servos['r_knee'].move(120)'''
 
         # TODO: ENSURE TARGET POS REACHED
 
