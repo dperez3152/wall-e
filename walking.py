@@ -118,19 +118,9 @@ class Walle:
     # TODO: def move_to_pos(position: Enum["stand", "crouch"]): figure out how to do this
     def move_to_pos(self, position):
         # move wall-e to his home "stand" position or rest "crouch" position
-
-        # servo 1: top head
-        # servo 2: right shin   120
-        # servo 3: right leg    180
-        # servo 4: left leg     0
-        # servo 5: left shin    120
-        # servo 6: head lifter
-        # servo 7: right hip    120     
-        # servo 8: left hip     120              
-
         if position == "stand":
             self.servos['l_hip'].move(105)
-            self.servos['r_hip'].move(155)
+            self.servos['r_hip'].move(150)
             
             self.servos['l_leg'].move(175)
             self.servos['r_leg'].move(5)
@@ -193,28 +183,24 @@ class Walle:
 
     def walk(self):
         t = 0
-        offsetHip = 240
-        offsetUpperKnee = 15
-        offsetKnee = 15
-
-        # right hip: 155
-        # right leg: 30
-        # right knee: 120
+        #offsetHip = 240
+        #offsetUpperKnee = 15
+        #offsetKnee = 15
 
         while t<15: 
 
             if t%2 == 0 :
                 self.health_check()
-                print("health good\n")
+                print("health good (for now)\n")
             
-            self.servos['rleg'].move(4 * cos(2.5* t+pi/2) + 5)
-            self.servos['lleg'].move(4 * cos((2.5* t+pi/2)) + 175)
+            self.servos['rleg'].move(4 * cos(2.5* t+pi/2) + 5)          # 
+            self.servos['lleg'].move(4 * cos((2.5* t+pi/2)) + 175)      #
             
-            self.servos['rhip'].move(8 * sin((2.5*t+pi/2)) + 150)
-            self.servos['lhip'].move(8 * sin((2.5*t+pi/2)) + 105)
+            self.servos['rhip'].move(8 * sin((2.5*t+pi/2)) + 150)       #
+            self.servos['lhip'].move(8 * sin((2.5*t+pi/2)) + 105)       #
             
-            self.servos['rknee'].move(10 * cos((2.5*t+pi/2)) + 120)
-            self.servos['lknee'].move(10 * cos(2.5*t+pi/2) + 120)
+            self.servos['rknee'].move(10 * cos((2.5*t+pi/2)) + 120)     #
+            self.servos['lknee'].move(10 * cos(2.5*t+pi/2) + 120)       # 
 
             time.sleep(0.05)
             t += 0.1
